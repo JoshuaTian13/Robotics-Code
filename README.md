@@ -40,13 +40,3 @@ The highlight of this project is the **`util` library**, which implements reusab
 - **`stager.hpp`** – Prototype file for staging/sequencing actions.  
 
 These were used for testing concepts and are not part of the main runtime build. They remain in the repo as reference material but are not essential to the core system.
-
----
-
-## What to Focus On
-If you’re short on time reviewing this repo:  
-1. **`util.hpp`** – Core algorithms I wrote from scratch.  
-2. **`autons.hpp`** – How those algorithms get applied in real strategies.  
-3. **`odom.hpp`** – Applied math for localization.  
-
-The subsystem files (`intake`, `cata`, `chassis`) show the control flow, but the heart of my work lies in `util` and its integration into autonomous logic.
