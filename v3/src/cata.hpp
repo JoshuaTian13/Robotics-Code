@@ -1,16 +1,33 @@
 #ifndef __CATA__
 #define __CATA__
+
 #include "global.hpp"
 
+/**
+ * Catapult (cata) subsystem.
+ * Handles firing, reloading, pausing, and boost logic.
+ */
 namespace cata
 {
-    enum states {idle, firing, reloading, paused};
+    enum states { idle, firing, reloading, paused };
+
+    // Current state of the catapult
     states curr;
+
+    // Boost flag (extra power when enabled)
     bool boost;
+
+    // Timers for controlling reload and boost phases
     util::timer boostTimer;
     util::timer slowTimer;
+
+    // Mutex to prevent race conditions in control loop
     pros::Mutex smtx;
 
+    /**
+     * Main control loop for the catapult.
+     * Manages transitions between idle, firing, reloading, and paused.
+     */
     void control()  
     {
         while(true)
@@ -31,7 +48,6 @@ namespace cata
                     {
                         robot::itsuki.spin(-127);
                     }
-
                     else
                     {
                         curr = reloading;
@@ -54,13 +70,11 @@ namespace cata
                         {
                             robot::itsuki.spin(-127);
                         }
-
                         else
                         {
                             robot::itsuki.spin(-75);
                         }
                     }
-
                     else
                     {
                         robot::itsuki.stop('b');
@@ -71,7 +85,6 @@ namespace cata
                         robot::itsuki.stop('b');
                         curr = idle;
                     }
-
                     break;
 
                 case paused:
@@ -80,11 +93,13 @@ namespace cata
                     curr = reloading;
                     break;
             }
+
             smtx.unlock();
             pros::delay(20);
         }
     }
 
+    /** Trigger a firing sequence */
     void fire()
     {
         smtx.lock();
@@ -92,6 +107,7 @@ namespace cata
         smtx.unlock();
     }  
 
+    /** Pause the catapult (forces reload afterwards) */
     void pause()
     {
         smtx.lock();
