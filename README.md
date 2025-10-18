@@ -2,7 +2,7 @@
 
 This repository contains the core code I developed for a competitive robotics system, with a focus on control algorithms, autonomous routines, and subsystem management.  
 
-The game objective was straightforward: there were **two elevated goals (buckets)**, and the robot’s task was to **shoot discs into its own goal** while preventing the opponent from scoring. Success relied on accuracy, efficiency, and coordination between subsystems like the drive, intake, and catapult.
+The game objective was relatively straightforward: there were **two elevated goals (buckets)**, and the robot’s main task was to **shoot discs into its own goal** while preventing the opponent from scoring. There were other methods of scoring, but the code is mainly focused on this aspect of the game. Success relied on accuracy, efficiency, and coordination between subsystems like the drive, intake, and catapult.
 
 The highlight of this project is the **`util` library**, which implements reusable math and control algorithms (PID controllers, Bezier curves, moving averages, etc.) that power higher-level autonomous behavior. Other files define subsystems (intake, catapult, drive) and orchestrate them into full autonomous routines.
 
