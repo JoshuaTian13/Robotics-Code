@@ -11,7 +11,8 @@
 typedef void(*fptr)();
 
 /**
- * Utility namespace providing math helpers, 
+ * @file util.hpp
+ * @brief Utility namespace providing math helpers, 
  * control algorithms (PID, moving average),
  * geometric primitives (coordinates, Bezier),
  * and timing utilities.
@@ -24,10 +25,8 @@ namespace util {
     class pidConstants;
     class pid;
     class movingAverage;
-    class timeRange;
-    struct controllerOutputs;
-    class controller;
 
+    // Core math & geometry utilities
     double dtr(double input);   // degrees → radians
     double rtd(double input);   // radians → degrees
     int dirToSpin(double target, double currHeading);
@@ -45,23 +44,16 @@ public:
     int startTime = 0;
 
     timer() { start(); }
-    timer(int a) {}
+    timer(int) {}
 
-    void start() {
-        startTime = pros::millis();
-    }
-
-    int time() {
-        return (pros::millis() - startTime);
-    }
+    void start() { startTime = pros::millis(); }
+    int time() { return pros::millis() - startTime; }
 };
 
 /* ---------------- Coordinate ---------------- */
 class util::coordinate {
 public:
-    double x;
-    double y;
-
+    double x, y;
     coordinate(double px, double py) : x(px), y(py) {}
     coordinate();
 };
@@ -71,7 +63,6 @@ class util::pose {
 public:
     util::coordinate pos;
     double heading;
-
     pose(util::coordinate p, double h) : pos(p), heading(h) {}
 };
 
@@ -79,11 +70,10 @@ public:
 class util::bezier {
 private:
     coordinate p0, p1, p2, p3;
-    double initialWeight, finalWeight;
-    double initialHeading, finalHeading;
 
 public:
-    bezier(coordinate first, coordinate last, double initialWeight, double finalWeight, double initialHeading, double finalHeading) {
+    bezier(coordinate first, coordinate last, double initialWeight, double finalWeight,
+           double initialHeading, double finalHeading) {
         p0 = first;
         p1 = coordinate(first.x + sin(initialHeading) * initialWeight,
                         first.y + cos(initialHeading) * initialWeight);
@@ -93,7 +83,7 @@ public:
     }
 
     coordinate solve(double t) {
-        double omt = 1-t;
+        double omt = 1 - t;
         double x0 = p0.x, x1 = p1.x, x2 = p2.x, x3 = p3.x;
         double y0 = p0.y, y1 = p1.y, y2 = p2.y, y3 = p3.y;
         return coordinate(pow(omt,3)*x0 + 3*pow(omt,2)*t*x1 + 3*omt*pow(t,2)*x2 + pow(t,3)*x3,
@@ -102,9 +92,7 @@ public:
 
     std::vector<coordinate> createLUT(double resolution) {
         std::vector<coordinate> points;
-        for (int i = 0; i < resolution; i++) {
-            points.push_back(solve(i/resolution));
-        }
+        for (int i = 0; i < resolution; i++) points.push_back(solve(i/resolution));
         return points;
     }
 
@@ -124,9 +112,9 @@ class util::pidConstants {
 public:
     double p, i, d, tolerance, integralThreshold, maxIntegral, kv;
 
-    pidConstants(){}
+    pidConstants() {}
     pidConstants(double kp, double ki, double kd, double tol, double intThresh, double maxI)
-        : p(kp), i(ki), d(kd), tolerance(tol), integralThreshold(intThresh), maxIntegral(maxI) {}
+        : p(kp), i(ki), d(kd), tolerance(tol), integralThreshold(intThresh), maxIntegral(maxI), kv(0) {}
 
     pidConstants(double kp, double ki, double kd, double tol, double intThresh, double maxI, double kv)
         : p(kp), i(ki), d(kd), tolerance(tol), integralThreshold(intThresh), maxIntegral(maxI), kv(kv) {}
@@ -140,7 +128,7 @@ private:
     util::pidConstants constants;
 
 public:
-    pid(){}
+    pid() {}
     pid(util::pidConstants cons, double error) : constants(cons), prevError(error) {}
 
     double out(double error) {
@@ -154,31 +142,27 @@ public:
         return error * constants.p + integral * constants.i + derivative * constants.d;
     }
 
-    void update(util::pidConstants cons) {
-        constants = cons;
-    }
+    void update(util::pidConstants cons) { constants = cons; }
 };
 
 /* ---------------- Moving Average ---------------- */
 class util::movingAverage {
 private:
     int size;
-    double sum, integral;
+    double integral;
     std::vector<double> window;
 
 public:
-    movingAverage(int Size) : size(Size), sum(0), integral(0) {
+    movingAverage(int Size) : size(Size), integral(0) {
         for (int i = 0; i < size; i++) {
             window.push_back(0);
-            integral += pow(i * 1.0/size, 2);
+            integral += pow(i * 1.0 / size, 2);
         }
     }
     
     void push(double val) {
-        for (int i = 0; i < size-1; i++) {
-            window[i] = window[i+1];
-        }
-        window[size-1] = val;
+        for (int i = 0; i < size - 1; i++) window[i] = window[i+1];
+        window[size - 1] = val;
     }
 
     double simpleAverage() {
@@ -189,9 +173,7 @@ public:
 
     double expAverage() {
         double avg = 0;
-        for (int i = 1; i != size; i++) {
-            avg += window[i] * pow(i * 1.0/size, 2);
-        }
+        for (int i = 1; i != size; i++) avg += window[i] * pow(i * 1.0 / size, 2);
         return avg / integral;
     }
 };
@@ -210,11 +192,11 @@ inline double util::minError(double target, double current) {
     double b = std::max(target, current);
     double s = std::min(target, current);
     double diff = b - s;
-    return diff <= 180 ? diff : (360-b) + s;
+    return diff <= 180 ? diff : (360 - b) + s;
 }
 
 inline double util::distToPoint(util::coordinate p1, util::coordinate p2) {
-    return sqrt(pow((p2.x-p1.x), 2) + pow((p2.y-p1.y), 2));
+    return sqrt(pow((p2.x - p1.x), 2) + pow((p2.y - p1.y), 2));
 }
 
 inline double util::mod(double a, double b) {
@@ -237,8 +219,6 @@ inline double util::imuToRad(double heading) {
     return (heading < 180) ? dtr(heading) : dtr(-(heading - 180));
 }
 
-inline double util::sign(double a) {
-    return a > 0 ? 1 : -1;
-}
+inline double util::sign(double a) { return a > 0 ? 1 : -1; }
 
 #endif
