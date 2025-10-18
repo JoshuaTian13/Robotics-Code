@@ -1,3 +1,12 @@
+Robotics Codebase – Autonomous & Control Utilities
+
+This repository contains the core code I developed for a competitive robotics system, with a focus on control algorithms, autonomous routines, and subsystem management.
+
+The game objective was straightforward: there were two elevated goals (buckets), and the robot’s task was to shoot discs into its own goal while preventing the opponent from scoring. Success relied on accuracy, efficiency, and coordination between subsystems like the drive, intake, and catapult.
+
+The highlight of this project is the util library, which implements reusable math and control algorithms (PID controllers, Bezier curves, moving averages, etc.) that power higher-level autonomous behavior. Other files define subsystems (intake, catapult, drive) and orchestrate them into full autonomous routines.
+
+📂 File Overview
 Core Algorithms & Utilities
 
 util.hpp – Core math and control utilities.
@@ -9,7 +18,7 @@ Autonomous Logic
 autons.hpp – Defines multiple autonomous routines (wp, eightwp, near, far, skills, etc.) built on top of subsystems and util’s algorithms.
 👉 Demonstrates how algorithms integrate into real match strategies.
 
-odom.hpp – Experimental odometry tracking using encoders and IMU to update robot position.
+odom.hpp – Odometry tracking using encoders and the IMU to update robot position.
 Shows applied math (rotation matrices, encoder deltas) in real-time localization.
 
 Subsystems
@@ -36,8 +45,8 @@ main.cpp – Entry point. Initializes sensors, launches background tasks (intake
 
 Experimental / Less Central
 
-opc.hpp – Unused; appears to be an experimental operator control test.
+opc.hpp – Prototype file for operator control experiments.
 
-stager.hpp – Unused; likely an experimental attempt at staging actions.
+stager.hpp – Prototype file for staging/sequencing actions.
 
-These files aren’t referenced by lib.hpp (they’re commented out) and don’t affect the main build. They’re kept here for completeness but are not central to the project.
+These were used for testing concepts and are not part of the main runtime build. They remain in the repo as reference material but are not essential to the core system.
